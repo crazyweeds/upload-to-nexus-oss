@@ -6,16 +6,10 @@ Automatically upload a local repository to a remote repository(Nexus-OSS-3)|将�
     支持：nexus oss 3+
     不支持：nexus oss 2
 
-
-## 参考文档：
-
-    多谢官方提供的文档，虽然不太全，但也足够了。
-
-    https://help.sonatype.com/repomanager3/rest-and-integration-api/components-api
     
 ## 功能说明：
     
-    将指定目录的本地仓库，批量上传到nexus-oss中。支持pom(比如spring-boot-parent)，更支持jar(比如spring-webmvc)。
+    将本地标准仓库，上传到maven私服，暂时只支持标准本地仓库
     
 ## 适用场景：
 

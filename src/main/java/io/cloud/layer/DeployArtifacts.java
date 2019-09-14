@@ -1,11 +1,16 @@
-package io.cloud.layer.utils;
+package io.cloud.layer;
 
-import io.cloud.layer.utils.beans.Pom;
-import io.cloud.layer.utils.common.PomFileFilter;
-import io.cloud.layer.utils.utils.PomUtils;
+import io.cloud.layer.beans.Pom;
+import io.cloud.layer.common.PomFileFilter;
+import io.cloud.layer.utils.DeployUtils;
+import io.cloud.layer.utils.EnvUtils;
+import io.cloud.layer.utils.MavenUtils;
+import io.cloud.layer.utils.PomUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,22 +22,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2019-09-10 22:30
  */
 @Slf4j
-public class UploadArtifacts {
+public class DeployArtifacts {
 
     /**
-     * @param args args[0] 本地路径
-     *             args[] 远程仓库地址
-     *             args[] 远程仓库用户名
-     *             args[] 远程仓库密码
-     *             args[1] 线程数，默认CPU核心数*2
-     *             args[2]
+     * main method
+     * @param args args[0]={config file path}
+     * @throws IOException
      */
-    public static void main(String[] args) {
-        String filePath = "/Users/chenruibo/Desktop/test";
+    public static void main(String[] args) throws IOException {
+        /**
+         * 解析并初始化配置
+         */
+        initConfig(args);
         /**
          * 获取所有pom文件列表
          */
-        Map<String, File> pomFiles = getAllPomFiles(filePath);
+        Map<String, File> pomFiles = getAllPomFiles();
         /**
          * 构建数据，做上传前的准备
          */
@@ -40,10 +45,24 @@ public class UploadArtifacts {
         /**
          * 开始上传
          */
-        uploadFile2NexusOss(poms);
+        deploy2RemoteRepository(poms);
     }
 
-    private static void uploadFile2NexusOss(Map<String, List<File>> poms) {
+    private static void initConfig(String[] args) throws IOException {
+        Properties defaultConfig = PropertiesLoaderUtils.loadAllProperties("config.properties");
+        EnvUtils.addEnv(defaultConfig);
+        if (args.length != 0) {
+            FileSystemResource fileSystemResource = new FileSystemResource(new File(args[0]));
+            Properties customConfig = PropertiesLoaderUtils.loadProperties(fileSystemResource);
+            EnvUtils.addEnv(customConfig);
+        }
+    }
+
+    /**
+     * 将文件部署到远程仓库
+     * @param poms
+     */
+    private static void deploy2RemoteRepository(Map<String, List<File>> poms) {
         if (poms.isEmpty()) {
             log.warn("等待上传的文件列表为空");
             return;
@@ -56,38 +75,27 @@ public class UploadArtifacts {
             try {
                 Pom pom = PomUtils.parsePom(pomFilePath);
                 /**
-                 * pom文件
+                 * 上传POM
                  */
-                FileSystemResource asset1 = new FileSystemResource(pomFilePath);
-                pom.setAsset1(asset1);
-                pom.setAsset1Extension("pom");
+                boolean onlyPom = PomUtils.onlyPom(files);
+                if (onlyPom) {
+                    DeployUtils.deployPom(pom);
+                }
                 /**
-                 * jar文件
+                 * 上传jar
                  */
-                files.forEach(file -> {
-                    String name = file.getName();
-                    /**
-                     * jar文件
-                     */
-                    if (name.endsWith("jar") && !name.endsWith("sources.jar")) {
-                        FileSystemResource fileSystemResource = new FileSystemResource(file);
-                        pom.setAsset2(fileSystemResource);
-                        pom.setAsset2Extension("jar");
-                    }
-                    /**
-                     * sources文件
-                     */
-                    if (name.endsWith("sources.jar")) {
-                        FileSystemResource fileSystemResource = new FileSystemResource(file);
-                        pom.setAsset3(fileSystemResource);
-                        pom.setAsset3Extension("jar");
-                    }
-
-                });
-            } catch (IOException e) {
-                log.error("", e);
-                e.printStackTrace();
-            } catch (XmlPullParserException e) {
+                boolean jar = PomUtils.isJar(files);
+                if (jar) {
+                    DeployUtils.deployPom(pom);
+                }
+                /**
+                 * 上传源码
+                 */
+                boolean source = PomUtils.isSource(files);
+                if (source) {
+                    DeployUtils.deploySource(pom);
+                }
+            } catch (IOException | XmlPullParserException e) {
                 log.error("", e);
                 e.printStackTrace();
             }
@@ -122,12 +130,15 @@ public class UploadArtifacts {
 
     /**
      * 获取所有pom文件
-     * @param path
      * @return
      */
-    private static Map<String, File> getAllPomFiles(String path) {
-        if (Objects.isNull(path)) {
-            throw new RuntimeException("Path can not be null");
+    private static Map<String, File> getAllPomFiles() {
+        String path = System.getenv("local.repository.path");
+        if (StringUtils.isBlank(path)) {
+            path = MavenUtils.getDefaultLocalRepo();
+            log.warn("未设置本地仓库路径，将使用默认本地仓库：{}", path);
+        } else {
+            log.info("仓库路径：{}", path);
         }
         File file = new File(path);
         PomFileFilter pomFileFilter = new PomFileFilter();
