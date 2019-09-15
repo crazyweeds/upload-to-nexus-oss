@@ -14,6 +14,7 @@ import java.util.Objects;
 
 /**
  * 解析pom文件的信息
+ *
  * @author RippleChan
  * @date 2019-09-10 23:55
  */
@@ -46,12 +47,14 @@ public class PomUtils {
                 .artifactId(artifactId)
                 .version(version)
                 .packaging(packaging)
+                .pomFile(new File(pomFilePath))
                 .build();
         return build;
     }
 
     /**
      * 是否包含源码
+     *
      * @param files
      * @return
      */
@@ -70,6 +73,7 @@ public class PomUtils {
 
     /**
      * 是否包含jar
+     *
      * @param files
      * @return
      */
@@ -106,6 +110,24 @@ public class PomUtils {
             }
         }
         return false;
+    }
+
+    public static void setJarFile(Pom pom, List<File> files) {
+        for (int i = 0; i < files.size(); i++) {
+            File file = files.get(i);
+            if (!file.getName().toLowerCase().endsWith(SOURCES_FILE_SUFFIX) && file.getName().toLowerCase().endsWith(JAR_FILE_SUFFIX)) {
+                pom.setJarFile(file);
+            }
+        }
+    }
+
+    public static void setSource(Pom pom, List<File> files) {
+        for (int i = 0; i < files.size(); i++) {
+            File file = files.get(i);
+            if (file.getName().toLowerCase().endsWith(SOURCES_FILE_SUFFIX)) {
+                pom.setSourceFile(file);
+            }
+        }
     }
 
 }

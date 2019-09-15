@@ -11,9 +11,9 @@ import lombok.Getter;
 @Getter
 public enum MavenFileTypes {
 
-    POM("pom",false),
-    JAR("jar",false),
-    SOURCE("java-source",false);
+    POM("pom", false),
+    JAR("jar", false),
+    SOURCE("java-source", false);
 
     private String type;
 

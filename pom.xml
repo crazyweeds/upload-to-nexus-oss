@@ -23,8 +23,8 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>5.1.8.RELEASE</version>
+            <artifactId>spring-core</artifactId>
+            <version>5.1.9.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -37,14 +37,14 @@
             <version>1.18.8</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>2.1.6.RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>4.6.4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -96,7 +96,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>net.sirun.Runner</mainClass>
+                            <mainClass>io.cloud.layer.DeployArtifacts</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

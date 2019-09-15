@@ -14,10 +14,7 @@ public class PomFileFilter implements FileFilter {
 
     @Override
     public boolean accept(File pathname) {
-        if (pathname.getName().endsWith(FILE_SUFFIX)) {
-            return true;
-        }
-        return false;
+        return pathname.getName().endsWith(FILE_SUFFIX);
     }
 
 }
