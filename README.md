@@ -31,9 +31,16 @@ Automatically upload a local repository to a remote repository(Nexus-OSS-3)|将�
 
 ## 例子
 
+#### 方式一：自己编译
+
     git clone https://github.com/crazyweeds/upload-to-nexus-oss.git
     cd upload-to-nexus-oss
     mvn package
     cd target 
     java -jar upload-to-nexus-oss-1.0-SNAPSHOT-jar-with-dependencies.jar ${your config.properties file path}
+    
+#### 方式二：下载已编译版本
+
+    https://github.com/crazyweeds/upload-to-nexus-oss/releases
+    
     
