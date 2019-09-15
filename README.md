@@ -50,3 +50,21 @@ Automatically upload a local repository to a remote repository(Nexus-OSS-3)|将�
 ## 八、迭代计划
 
 #### 无特殊情况，不再迭代，除非硬性需求或者使用中出现BUG
+
+
+## 九、配置文件
+
+    #deploy的线程数，默认20个，请根据自身电脑和网络情况配置。
+    thread.count=20
+    
+    #本地仓库所在路径，解析groupId是根据pom文件内容获取的，所以路径是什么并不重要。有pom文件即可。
+    local.repository.path=/Users/chenruibo/.m2/repository
+    
+    #maven settings.xml 配置文件中的servers节点下目标server的id
+    repository.id=my-server
+    
+    #远程仓库路径，如果使用nexus，别选择错了，必须是host类型，不能是proxy类型
+    target.repo.url=http://baidu:8081/repository/maven-releases/
+    
+    #deploy超时时间，单位是s。默认10分钟，正常情况，应该足够了
+    deploy.timeout=600
